@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>წონის ბალანსის ფორმულა</title>
+<meta name="description" content="ყავა • ჩაი • კაფსულები • ნაკრებები — კატალოგი და შეკვეთა WhatsApp-ით. მიწოდება საქართველოში • 18+">
+<link rel="canonical" href="https://ruska-catalog-ready.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ruska-catalog-ready.vercel.app/">
+<meta property="og:title" content="წონის ბალანსის ფორმულა — პროდუქტების კატალოგი">
+<meta property="og:description" content="ყავა • ჩაი • კაფსულები • ნაკრებები — კატალოგი და შეკვეთა WhatsApp-ით. მიწოდება საქართველოში • 18+">
+<meta property="og:image" content="https://ruska-catalog-ready.vercel.app/main-banner.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ruska-catalog-ready.vercel.app/main-banner.jpg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f7f8f4;color:#183d28}
+.wrap{max-width:1100px;margin:auto;padding:18px}.hero{background:#e8f0e5;border-radius:24px;padding:24px;margin:10px 0 24px}
+.hero h1{font-size:36px;margin:0 0 8px}.hero p{font-size:17px}.hero img{width:100%;max-height:360px;object-fit:contain;border-radius:18px;margin-top:15px}
+.wa{display:inline-block;background:#237b42;color:#fff;text-decoration:none;padding:12px 17px;border-radius:12px;font-weight:700}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 18px}.toolbar input,.toolbar select{padding:11px;border:1px solid #ccd6cb;border-radius:11px;background:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card{background:#fff;border-radius:18px;padding:15px;box-shadow:0 3px 16px #0000000d}
+.card img{width:100%;aspect-ratio:1/1;object-fit:contain;border-radius:12px}.card h3{margin:10px 0 7px}.meta{font-size:13px;color:#68736b}
+.price{font-size:22px;font-weight:800}.old{text-decoration:line-through;color:#777;margin-right:8px}.sold{display:inline-block;background:#eee;color:#666;padding:8px 11px;border-radius:10px;font-weight:700}
+.buy{display:inline-block;margin-top:11px;background:#277943;color:#fff;text-decoration:none;padding:10px 13px;border-radius:10px;font-weight:700}
+footer{margin-top:35px;padding:22px 0;border-top:1px solid #dce4da;font-size:14px}.links a{margin-right:12px;color:#236b3d}
+@media(max-width:550px){.wrap{padding:13px}.hero{padding:16px}.hero h1{font-size:29px}.hero img{max-height:205px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{padding:11px}.card h3{font-size:16px}.price{font-size:19px}}
+@media(max-width:390px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="wrap">
+<section class="hero"><h1>წონის ბალანსის ფორმულა</h1><p>ყავა • ჩაი • კაფსულები • ნაკრებები</p>
+<a class="wa" href="https://wa.me/995577049828" target="_blank">შეკვეთა WhatsApp-ზე</a>
+<img src="main-banner.jpg" alt="წონის ბალანსის ფორმულა"></section>
+<h2>პროდუქტები</h2>
+<div class="toolbar"><input id="search" placeholder="პროდუქტის ძებნა"><select id="category"><option value="">ყველა კატეგორია</option></select></div>
+<div id="grid" class="grid"><div>იტვირთება…</div></div>
+<footer><b>18+</b> • პროდუქტის შესახებ ინფორმაციისთვის მოგვწერეთ. <div id="contacts" class="links"></div></footer>
+</main>
+<script>
+const sb=supabase.createClient('https://uqrcflysqlghnyequdll.supabase.co','sb_publishable_sM_ngYbAZpTI0lMK_4pOtA_QhQgbLwe');
+let products=[];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function render(){
+ const q=document.getElementById('search').value.toLowerCase(), cat=document.getElementById('category').value;
+ const rows=products.filter(p=>(!q||p.name.toLowerCase().includes(q))&&(!cat||p.category===cat));
+ document.getElementById('grid').innerHTML=rows.map(p=>{
+  const current=p.promo_active&&p.promo_price!=null?p.promo_price:p.price;
+  const old=p.promo_active&&p.promo_price!=null?(p.old_price??p.price):p.old_price;
+  const hasPrice=Number(current||0)>0, price=hasPrice?Number(current).toFixed(0)+' ₾':'ფასი მოგვწერეთ';
+  const oldHtml=old!=null&&Number(old)>Number(current||0)?'<span class="old">'+Number(old).toFixed(0)+' ₾</span>':'';
+  const msg=encodeURIComponent('გამარჯობა, მინდა '+p.name+(hasPrice?' — '+price:''));
+  return '<article class="card">'+(p.image_url?'<img src="'+esc(p.image_url)+'" alt="'+esc(p.name)+'">':'')+
+  '<h3>'+esc(p.name)+'</h3><div class="meta">'+esc([p.brand,p.category].filter(Boolean).join(' • '))+'</div>'+
+  (p.in_stock?'<div>'+oldHtml+'<span class="price">'+price+'</span></div><a class="buy" target="_blank" href="https://wa.me/995577049828?text='+msg+'">შეკვეთა</a>':'<span class="sold">ამოიწურა</span>')+'</article>'
+ }).join('')||'<div>პროდუქტი ვერ მოიძებნა.</div>';
+}
+async function load(){
+ const {data,error}=await sb.rpc('catalog_products');
+ if(error){document.getElementById('grid').innerHTML='<div>პროდუქტები დროებით ვერ ჩაიტვირთა.</div>';return}
+ products=data||[];
+ const cats=[...new Set(products.map(x=>x.category).filter(Boolean))].sort();
+ document.getElementById('category').innerHTML='<option value="">ყველა კატეგორია</option>'+cats.map(x=>'<option>'+esc(x)+'</option>').join('');
+ render();
+ const {data:s}=await sb.from('site_settings').select('key,value').in('key',['contact']);
+ const c=(s||[]).find(x=>x.key==='contact')?.value||{};
+ const links=[['WhatsApp','https://wa.me/995'+String(c.whatsapp||'577049828').replace(/\D/g,'').replace(/^995/,'')],['Instagram',c.instagram],['Facebook 1',c.facebook_1],['Facebook 2',c.facebook_2],['Facebook 3',c.facebook_3]].filter(x=>x[1]);
+ document.getElementById('contacts').innerHTML=links.map(x=>'<a target="_blank" href="'+esc(x[1])+'">'+esc(x[0])+'</a>').join('');
+}
+document.getElementById('search').addEventListener('input',render);document.getElementById('category').addEventListener('change',render);load();
+</script></body></html>
