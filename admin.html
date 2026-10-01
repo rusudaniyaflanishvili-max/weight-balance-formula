@@ -7,5 +7,50 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#f5f7f3;margin:0;color:#183d28}
-.w{max-width:
+body{font-family:Arial;background:#f5f7f3;margin:0;color:#183d28}
+.w{max-width:900px;margin:auto;padding:14px}
+input,textarea,button{width:100%;padding:11px;margin:5px 0;border:1px solid #ccd5ca;border-radius:10px;font-size:15px}
+textarea{min-height:80px}
+button{background:#277943;color:#fff;font-weight:700;border:0}
+.box{background:#fff;padding:14px;border-radius:15px;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{width:auto}
+.danger{background:#a83232}
+.thumb{width:150px;height:110px;object-fit:contain}
+@media(max-width:550px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<main class="w">
+<h1>კატალოგის მართვა</h1>
+
+<div id="auth" class="box">
+<input id="email" placeholder="ელფოსტა">
+<input id="pass" type="password" placeholder="პაროლი">
+<button onclick="login()">შესვლა</button>
+</div>
+
+<div id="app" hidden>
+
+<div class="box">
+<h2>კურიერის ფასი</h2>
+<div class="row">
+<input id="tb" type="number" placeholder="თბილისი">
+<input id="ru" type="number" placeholder="რუსთავი">
+<input id="re" type="number" placeholder="სხვა ქალაქები">
+<input id="vi" type="number" placeholder="სოფლები">
+</div>
+<label><input class="check" id="free" type="checkbox"> უფასო კურიერი</label>
+<button onclick="saveDelivery()">შენახვა</button>
+</div>
+
+<div class="box">
+<h2>ახალი პროდუქტი</h2>
+<input id="nn" placeholder="დასახელება">
+<input id="nb" placeholder="ბრენდი">
+<input id="nc" placeholder="კატეგორია">
+<input id="np" type="number" placeholder="ფასი">
+<textarea id="nd" placeholder="აღწერა"></textarea>
+<label>ფოტო</label>
+<input id="nf" type="file" accept="image/jpeg,image/png
