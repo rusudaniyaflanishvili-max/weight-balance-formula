@@ -8,9 +8,10 @@
 <style>
 body{font-family:Arial;background:#f5f7f3;color:#183d28;margin:0}
 main{max-width:700px;margin:auto;padding:15px}
-.box{background:white;padding:15px;margin:12px 0;border-radius:14px}
-input,button{box-sizing:border-box;width:100%;padding:12px;margin:6px 0}
-button{background:#277943;color:white;border:0;border-radius:9px;font-weight:bold}
+.box{background:#fff;padding:14px;margin:10px 0;border-radius:12px}
+input,button{box-sizing:border-box;width:100%;padding:11px;margin:5px 0}
+button{background:#277943;color:#fff;border:0;border-radius:8px;font-weight:bold}
+.red{background:#a83232}
 </style>
 </head>
 <body>
@@ -21,13 +22,14 @@ button{background:#277943;color:white;border:0;border-radius:9px;font-weight:bol
 <input id="email" value="poladishviligogita@gmail.com">
 <input id="pass" type="password" placeholder="პაროლი">
 <button onclick="enter()">შესვლა</button>
-<button onclick="reset()">პაროლი დამავიწყდა</button>
+<button onclick="forgot()">პაროლი დამავიწყდა</button>
 <p id="msg"></p>
 </div>
 
 <div id="panel" hidden>
 <h3>პროდუქტები</h3>
 <div id="products"></div>
+<button onclick="out()">გასვლა</button>
 </div>
 </main>
 
@@ -38,28 +40,118 @@ const s=supabase.createClient(
 );
 
 async function enter(){
- let {error}=await s.auth.signInWithPassword({
- email:email.value,
- password:pass.value
+ let r=await s.auth.signInWithPassword({
+  email:email.value.trim(),
+  password:pass.value
  });
- if(error){msg.innerText=error.message;return}
- openPanel();
+ if(r.error){
+  msg.innerText='შეცდომა: '+r.error.message;
+  return;
+ }
+ load();
 }
 
-async function reset(){
- let {error}=await s.auth.resetPasswordForEmail(
- email.value,
- {redirectTo:'https://ruska-catalog-ready.vercel.app/reset-password.html'}
+async function forgot(){
+ let r=await s.auth.resetPasswordForEmail(
+  email.value.trim(),
+  {redirectTo:'https://ruska-catalog-ready.vercel.app/reset-password.html'}
  );
- msg.innerText=error?error.message:'აღდგენის წერილი გამოგზავნილია';
+ msg.innerText=r.error
+ ?'შეცდომა: '+r.error.message
+ :'აღდგენის წერილი გამოგზავნილია';
 }
 
-async function openPanel(){
- let {data,error}=await s.from('products')
- .select('id,name,sale_price')
+async function load(){
+ let r=await s.from('products')
+ .select('id,name,sale_price,old_price,promo_price,in_stock,active')
  .order('name');
 
- if(error){msg.innerText=error.message;return}
+ if(r.error){
+  msg.innerText='შეცდომა: '+r.error.message;
+  return;
+ }
 
  login.hidden=true;
  panel.hidden=false;
+
+ products.innerHTML=r.data.map(p=>`
+ <div class="box" data-id="${p.id}">
+  <b>${p.name}</b>
+
+  <input class="price" type="number"
+   value="${p.sale_price??0}"
+   placeholder="ფასი">
+
+  <input class="old" type="number"
+   value="${p.old_price??''}"
+   placeholder="ძველი ფასი">
+
+  <input class="promo" type="number"
+   value="${p.promo_price??''}"
+   placeholder="აქციის ფასი">
+
+  <label>
+   <input class="stock" type="checkbox"
+   ${p.in_stock?'checked':''}
+   style="width:auto"> მარაგშია
+  </label><br>
+
+  <label>
+   <input class="active" type="checkbox"
+   ${p.active?'checked':''}
+   style="width:auto"> საიტზე ჩანს
+  </label>
+
+  <button onclick="save(this)">შენახვა</button>
+ </div>
+ `).join('');
+}
+
+async function save(btn){
+ let b=btn.parentElement;
+ let id=b.dataset.id;
+
+ let old=b.querySelector('.old').value;
+ let promo=b.querySelector('.promo').value;
+
+ let original=await s.from('products')
+ .select('name,brand,category,description,image_url,promo_active')
+ .eq('id',id)
+ .single();
+
+ if(original.error){
+  alert(original.error.message);
+  return;
+ }
+
+ let p=original.data;
+
+ let r=await s.rpc('admin_update_product',{
+  p_id:id,
+  p_name:p.name,
+  p_brand:p.brand,
+  p_category:p.category,
+  p_price:+b.querySelector('.price').value,
+  p_description:p.description,
+  p_image_url:p.image_url,
+  p_old_price:old===''?null:+old,
+  p_promo_price:promo===''?null:+promo,
+  p_promo_active:p.promo_active,
+  p_in_stock:b.querySelector('.stock').checked,
+  p_active:b.querySelector('.active').checked
+ });
+
+ alert(r.error?'შეცდომა: '+r.error.message:'შენახულია');
+}
+
+async function out(){
+ await s.auth.signOut();
+ location.reload();
+}
+
+s.auth.getSession().then(r=>{
+ if(r.data.session)load();
+});
+</script>
+</body>
+</html>
